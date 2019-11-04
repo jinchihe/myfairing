@@ -1,0 +1,27 @@
+steps:
+# Pull cached image from previous build
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: ['-c', 'docker pull gcr.io/$PROJECT_ID/fairing-test:latest || exit 0']
+
+# Build test image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+      'build',
+      '-f', 'Dockerfile.test',
+      '-t', 'gcr.io/$PROJECT_ID/fairing-test:latest',
+      '--cache-from', 'gcr.io/$PROJECT_ID/fairing-test:latest',
+      '.'
+  ]
+
+# Authenticate with Kubeflow cluster and run tests
+- name: 'gcr.io/$PROJECT_ID/fairing-test:latest'
+  entrypoint: 'bash'
+  args: 
+      - '-c'
+      - 'gcloud container clusters get-credentials fairing-ci-0-7 --zone us-central1-a && pytest -n 8 -v --durations=10 --cov=fairing --ignore=tests/integration/azure/ tests/'
+
+images: ['gcr.io/$PROJECT_ID/fairing-test:latest']
+timeout: 3600s
+options:
+  machineType: 'N1_HIGHCPU_8'
