@@ -13,6 +13,6 @@ tornado>=6.0.1
 google-api-python-client>=1.7.8
 cloudpickle>=0.8
 numpy>=1.14
-urllib3==1.24.2
+urllib3==1.26.5
 boto3>=1.9.0
 azure>=4.0.0
